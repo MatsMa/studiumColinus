@@ -3,12 +3,13 @@
 out_dir=./data
 mkdir $out_dir
 
+# Download the text data and place it in the designated directory
 wget -P $out_dir https://raw.githubusercontent.com/levinalex/deutsche_verfassungen/master/grundgesetz/grundgesetz.txt
 
-# 1 b)
-sed '1,/^\s*I\s*$/{/^\s*I\s*$/!d}' $out_dir/grundgesetz.txt > $out_dir/grundgesetz_cropped.txt 
+# 1 b) Select from line 1 to first occurrence of pattern '/^I$', delete everything from first line until one line above first occurrence of pattern '/^I$'
+sed '1,/^I$/{/^I$/!d}' $out_dir/grundgesetz.txt > $out_dir/grundgesetz_cropped.txt 
 
-# 1 c)
+# 1 c) Split grundgesetz.txt at chapter headings (roman numerals)
 csplit -z --digits=2  --quiet --prefix=kapitel $out_dir/grundgesetz_cropped.txt '/^[MDCLXIV]\+$/' "{*}"
 mv kapitel* $out_dir
 
@@ -29,8 +30,8 @@ for chapter in "$out_dir"/kapitel*; do
   done
 done
 
-# 1 e)
+# 1 e) Delete unneeded data
 rm $out_dir/kapitel* $out_dir/grundgesetz* 
 
 # 1 f)
-tar -cvf grundgesetz.tar ./data
+tar -cvf grundgesetz.tar $out_dir
