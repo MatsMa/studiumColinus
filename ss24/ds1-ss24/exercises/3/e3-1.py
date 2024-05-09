@@ -8,11 +8,10 @@ start_value = 1.0
 arr = np.arange(start_value, start_value + 0.5 * rows * cols, 0.5).reshape(
     rows, cols
 )
-# print(arr)
 
 # b)
 int_mask = np.mod(arr, 1) == 0
-# print(int_mask)
+print(int_mask)
 
 # c)
 # Find indexes
@@ -32,7 +31,9 @@ print(s1)
 print(s2)
 
 # Row-wise mean
-print(np.mean(arr, axis=1))
+row_mean = np.mean(arr, axis=1)
+print(row_mean)
 
 # Column-wise mean
-print(np.mean(arr, axis=0))
+col_mean = np.mean(arr, axis=0)
+print(col_mean)
