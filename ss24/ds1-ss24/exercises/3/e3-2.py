@@ -1,7 +1,7 @@
 import numpy as np
 
 # a)
-samples = np.load("backup_data_2a.npy")
+# samples = np.load("backup_data_2a.npy")
 # print(data)
 # print(data.mean())
 
@@ -11,8 +11,7 @@ mean = np.array([0.0, 0.0])
 cov = np.array([[1.0, 0.0], [0.0, 10.0]])
 # cov = np.cov()
 
-# samples = np.random.multivariate_normal(mean, cov, 2000)
-# samples = rng.multivariate_normal(mean, cov, 2000, check_valid="raise")
+samples = rng.multivariate_normal(mean, cov, 2000, check_valid="raise")
 
 # print(samples)
 # print(data == samples)
@@ -31,8 +30,8 @@ r_matrix = get_rotation_matrix(theta)
 # data_rotated = data @ r_matrix
 
 r_matrix = get_rotation_matrix(theta)
-# samples_rotated = samples @ r_matrix
-samples_rotated = np.load("backup_data_2b.npy")
+samples_rotated = samples @ r_matrix
+# samples_rotated = np.load("backup_data_2b.npy")
 
 # c)
 import matplotlib.pyplot as plt
@@ -53,12 +52,12 @@ axes[0].spines["top"].set_visible(False)
 axes[0].spines["right"].set_visible(False)
 
 # Axis labels
-axes[0].set_xlabel("X")
-axes[0].set_ylabel("Y")
+axes[0].set_xlabel("x")
+axes[0].set_ylabel("y")
 
 # Ticks in steps of {+-}5
-axes[0].xaxis.set_ticks([tick for tick in axes[0].get_xticks() if tick % 5 == 0])
-axes[0].yaxis.set_ticks([tick for tick in axes[0].get_yticks() if tick % 5 == 0])
+axes[0].xaxis.set_ticks([tick for tick in axes[0].get_xticks() if tick % 5 == 0 and tick != 0])
+axes[0].yaxis.set_ticks([tick for tick in axes[0].get_yticks() if tick % 5 == 0 and tick != 0])
 # axes[0].yaxis.set_ticks(np.arange(start, end, 5))
 
 # Show tick values as integers to discard any decimal places
@@ -76,18 +75,21 @@ axes[1].spines["right"].set_visible(False)
 orig_data = axes[1].hist(
     samples[:, 0],
     bins=111,
+    # color="navy",
     fc=(1, 0.5, 0, 0.5),
-    zorder=0,
+    zorder=1,
     label="Original data",
 )
 rot_data = axes[1].hist(
     samples_rotated[:, 0],
     bins=111,
+    # color="darkorange",
     fc=(0.118, 0.25, 0.35, 0.5),
-    zorder=1,
+    zorder=0,
     label="Rotated data",
 )
 axes[1].set_ylabel("Count")
+axes[1].set_xlabel("x")
 
 axes[1].yaxis.set_major_formatter(ticker.FormatStrFormatter('%d'))
 
