@@ -1,8 +1,6 @@
 import pandas as pd
-import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 
 # 1
 df = pd.read_csv(
@@ -29,10 +27,12 @@ df["age_group"] = [
     "below_mean" if age < age_mean else "above_mean" for age in df["age"]
 ]
 
+df.info()
+
 # Histogram with KDE
-sns.histplot(data=df, x="age", kde=True)
-# sns.histplot(data=df, x='age', estimator=np.mean, errorbar="sd", bins=20, hue='age_group', multiple='stack', palette=['skyblue', 'lightcoral'])
-# sns.displot(kind="ecdf", data=df, x="age")
+# sns.displot(kind="hist", data=df, x="age", hue='age_group', kde=True)
+sns.displot(kind="hist", data=df, x="age", kde=True)
+# Mark mean with a vertical line
 plt.axvline(
     age_mean,
     color="red",
@@ -43,7 +43,7 @@ plt.axvline(
 plt.title("Age Distribution of Passengers")
 plt.xlabel("Age")
 plt.ylabel("Count")
-# plt.legend([f"Mean: {age_mean:.2f}"])
+
 # Create empty plot with blank marker containing the extra label
 plt.plot(
     [],
@@ -68,14 +68,50 @@ plt.title("Proportion of Passengers Below vs. Above Mean Age")
 plt.show()
 
 # c) TODO
+# fg = sns.displot(df, x='age_group', hue='sex', element='step')
+# plt.title("Proportion of Passengers Below vs. Above Mean Age by Sex")
+# plt.show()
+
+# c)
+df_agg = (
+    df.groupby(["sex", "age_group"]).size().reset_index(name="count")
+).pivot(index="sex", columns="age_group", values="count")
+
+# Handle potential KeyError if a group is missing
+df_agg = df_agg.fillna(0)  # Fill missing values with 0
+
+# Calculate percentages
+total_passengers = df_agg.sum(axis=1)
+df_agg_pct = df_agg.div(total_passengers, axis=0) * 100
+
+# Create stacked bar plot with percentages
+ax = df_agg_pct.plot(kind="bar", stacked=True, color=["skyblue", "lightcoral"])
+plt.title("Proportion of Passengers Below vs. Above Mean Age by Sex")
+plt.ylabel("Percentage (%)")
+plt.xlabel("Sex")
+
+# Add percentage labels inside bars
+for bar in ax.patches:
+    width, height = bar.get_width(), bar.get_height()
+    x, y = bar.get_xy()
+    ax.text(
+        x + width / 2,
+        y + height / 2,
+        f"{height:.1f}%",
+        ha="center",
+        va="center",
+        color="black",
+    )
+
+plt.show()
 
 # d)
 # Box Plot or Violin Plot?
-sns.violinplot(
-    data=df, x="sex", y="age", hue="alive", split=True, inner="quart"
-)
-plt.title("Alive Status for Sex")
-plt.show()
+# sns.violinplot(
+#     data=df, x="sex", y="age", hue="alive", split=True, inner="quart"
+# )
+# plt.title("Alive Status for Sex")
+# plt.show()
 
 # e)
 # sns.barplot(df, x="class", y="fare", errorbar="sd")
