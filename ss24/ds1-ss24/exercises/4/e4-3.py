@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# 1
+# Load the dataset
 df = pd.read_csv(
     "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/titanic.csv"
 )
@@ -12,26 +12,21 @@ df = pd.read_csv(
 # Describing central tendency
 age_mean = df["age"].mean()
 age_median = df["age"].median()
-# mode?
 # Describing dispersion
 age_min = df["age"].min()
 age_max = df["age"].max()
 age_range = age_max - age_min
-# range and IQR?
 age_std_dev = df["age"].std()
 # Describing shape
 age_skew = df["age"].skew()
-# kurtosis?
 
+# Create a column indicating whether a passenger is below or above mean age
 df["age_group"] = [
     "below_mean" if age < age_mean else "above_mean" for age in df["age"]
 ]
 
-df.info()
-
 # Histogram with KDE
-# sns.displot(kind="hist", data=df, x="age", hue='age_group', kde=True)
-sns.displot(kind="hist", data=df, x="age", kde=True)
+sns.displot(kind="hist", data=df, x="age", hue='age_group', kde=True, binwidth=1)
 # Mark mean with a vertical line
 plt.axvline(
     age_mean,
@@ -44,7 +39,7 @@ plt.title("Age Distribution of Passengers")
 plt.xlabel("Age")
 plt.ylabel("Count")
 
-# Create empty plot with blank marker containing the extra label
+# Create empty plot with blank marker containing the statistical measures to display in legend
 plt.plot(
     [],
     [],
@@ -67,11 +62,6 @@ plt.title("Proportion of Passengers Below vs. Above Mean Age")
 
 plt.show()
 
-# c) TODO
-# fg = sns.displot(df, x='age_group', hue='sex', element='step')
-# plt.title("Proportion of Passengers Below vs. Above Mean Age by Sex")
-# plt.show()
-
 # c)
 df_agg = (
     df.groupby(["sex", "age_group"]).size().reset_index(name="count")
@@ -80,11 +70,9 @@ df_agg = (
 # Handle potential KeyError if a group is missing
 df_agg = df_agg.fillna(0)  # Fill missing values with 0
 
-# Calculate percentages
 total_passengers = df_agg.sum(axis=1)
 df_agg_pct = df_agg.div(total_passengers, axis=0) * 100
 
-# Create stacked bar plot with percentages
 ax = df_agg_pct.plot(kind="bar", stacked=True, color=["skyblue", "lightcoral"])
 plt.title("Proportion of Passengers Below vs. Above Mean Age by Sex")
 plt.ylabel("Percentage (%)")
@@ -106,13 +94,59 @@ for bar in ax.patches:
 plt.show()
 
 # d)
-# Box Plot or Violin Plot?
-# sns.violinplot(
-#     data=df, x="sex", y="age", hue="alive", split=True, inner="quart"
-# )
-# plt.title("Alive Status for Sex")
-# plt.show()
+survival_rate = df.groupby('sex')['survived'].mean() * 100
+
+ax = survival_rate.plot(kind='bar', color=['skyblue', 'lightcoral'])
+plt.title('Survival Rate by Gender')
+plt.ylabel('Survival Rate (%)')
+plt.xlabel('Gender')
+
+# Add percentage labels on bars
+for bar in ax.patches:
+    height = bar.get_height()
+    ax.text(
+        bar.get_x() + bar.get_width() / 2,
+        height,
+        f'{height:.1f}%',
+        ha='center',
+        va='bottom',
+        color='black'
+    )
+
+plt.show()
 
 # e)
-# sns.barplot(df, x="class", y="fare", errorbar="sd")
-sns.catplot(data=df, x="class", y="fare", hue="class", kind="box")
+avg_fare_by_class = df.groupby('class')['fare'].mean()
+
+print("Average Fare by Class:")
+print(avg_fare_by_class)
+
+sns.boxplot(x='class', y='fare', hue='class', data=df)
+plt.title('Ticket Price Distribution by Class')
+plt.xlabel('Class')
+plt.ylabel('Fare')
+plt.show()
+
+# f)
+survival_rate_by_class = df.groupby('class')['survived'].mean() * 100
+
+print("Survival Rate by Class:")
+print(survival_rate_by_class)
+
+ax = survival_rate_by_class.plot(kind='bar', color=['skyblue', 'lightcoral', 'lightgreen'])
+plt.title('Survival Rate by Class')
+plt.ylabel('Survival Rate (%)')
+plt.xlabel('Class')
+
+for bar in ax.patches:
+    height = bar.get_height()
+    ax.text(
+        bar.get_x() + bar.get_width() / 2,
+        height,
+        f'{height:.1f}%',
+        ha='center',
+        va='bottom',
+        color='black'
+    )
+
+plt.show()
